@@ -20,6 +20,8 @@ public class VidaJugador : MonoBehaviour
         audioSourceEfectos = gameObject.AddComponent<AudioSource>();
         audioSourceEfectos.volume = 1f;
         audioSourceEfectos.playOnAwake = false;
+        UIManager ui = FindObjectOfType<UIManager>();
+if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
     }
     
     public void RecibirDano(float cantidad)
@@ -35,6 +37,8 @@ public class VidaJugador : MonoBehaviour
         Debug.Log($"Vida: {vidaActual}/{vidaMaxima}");
         
         if (vidaActual <= 0) Morir();
+        UIManager ui = FindObjectOfType<UIManager>();
+if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
     }
     
     public void Curar(float cantidad)
@@ -55,6 +59,8 @@ public class VidaJugador : MonoBehaviour
             
             StartCoroutine(DetenerSonidoCuracion(2f));
         }
+        UIManager ui = FindObjectOfType<UIManager>();
+if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
     }
 
     IEnumerator DetenerSonidoCuracion(float tiempo)

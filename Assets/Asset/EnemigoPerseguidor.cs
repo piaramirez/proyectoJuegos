@@ -79,5 +79,11 @@ public void RecibirDaño(float cantidad) {
         agente.isStopped = true;
         GetComponent<Collider>().enabled = false;
         Destroy(gameObject, 2f);
+        UIManager ui = FindObjectOfType<UIManager>();
+    if (ui != null)
+    {
+        ui.MatarEsqueleto();
     }
+    }
+    
 }
