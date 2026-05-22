@@ -9,17 +9,14 @@ public class MovimientoPlataforma : MonoBehaviour
     private Transform destinoActual;
     private int indiceSiguiente = 1;
     
-    // ========== NUEVO: AUDIO ==========
     [Header("Configuración de Audio")]
     public AudioSource audioSource;
     public AudioClip sonidoMovimiento;
     public AudioClip sonidoLlegada;
     public AudioClip sonidoPisada;
     
-    private bool estabaEnMovimiento = false;
     private bool reproduciendoMovimiento = false;
-    // ==================================
-
+    
     void Start()
     {
         if (Mov1 != null)
@@ -28,7 +25,6 @@ public class MovimientoPlataforma : MonoBehaviour
             destinoActual = Mov1;
         }
         
-        // Configurar AudioSource si no está asignado
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         
@@ -37,7 +33,7 @@ public class MovimientoPlataforma : MonoBehaviour
         
         if (audioSource != null)
         {
-            audioSource.spatialBlend = 1.0f; // Sonido 3D
+            audioSource.spatialBlend = 1.0f;
             audioSource.loop = false;
         }
     }
@@ -48,10 +44,8 @@ public class MovimientoPlataforma : MonoBehaviour
 
         transform.position = Vector3.MoveTowards(transform.position, destinoActual.position, velocidad * Time.deltaTime);
         
-        // Verificar si está en movimiento
         bool enMovimiento = Vector3.Distance(transform.position, destinoActual.position) > 0.1f;
         
-        // ========== AUDIO DE MOVIMIENTO ==========
         if (enMovimiento && sonidoMovimiento != null)
         {
             if (!reproduciendoMovimiento)
@@ -67,14 +61,12 @@ public class MovimientoPlataforma : MonoBehaviour
             audioSource.Stop();
             reproduciendoMovimiento = false;
             
-            // Sonido de llegada al punto
             if (sonidoLlegada != null)
             {
                 audioSource.PlayOneShot(sonidoLlegada, 0.7f);
             }
         }
         
-        // Cambiar destino cuando llega
         if (Vector3.Distance(transform.position, destinoActual.position) < 0.1f)
         {
             ActualizarDestino();
@@ -97,7 +89,6 @@ public class MovimientoPlataforma : MonoBehaviour
         {
             col.transform.SetParent(transform);
             
-            // ========== SONIDO AL PISAR LA PLATAFORMA ==========
             if (sonidoPisada != null && audioSource != null)
             {
                 audioSource.PlayOneShot(sonidoPisada, 0.5f);

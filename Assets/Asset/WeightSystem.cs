@@ -3,72 +3,38 @@ using System.Collections;
 
 public class WeightSystem : MonoBehaviour
 {
-    [Header("Peso del Jugador")]
-    [SerializeField] private float pesoBase = 1f;
-    [SerializeField] private float pesoActual;
-    
-    [Header("Power-up")]
-    [SerializeField] private float pesoModificado = 2f;
-    [SerializeField] private float duracionPowerUp = 5f;
-    
-    [Header("Visuales")]
-    [SerializeField] private Material materialNormal;
-    [SerializeField] private Material materialPesado;
-    private Renderer playerRenderer;
-    
-    private bool estaModificado = false;
-    private Coroutine rutinaPeso;
-    
-    public float PesoActual => pesoActual;
-    public float PesoBase => pesoBase;
-    public bool EstaPesado => pesoActual > pesoBase;
+    public float pesoBase = 1f;
+    private float pesoActual;
+    private float pesoModificado = 0f;
     
     void Start()
     {
         pesoActual = pesoBase;
-        playerRenderer = GetComponentInChildren<Renderer>();
-        ActualizarVisual();
     }
     
-    public void ActivarPowerUp()
+    public void AgregarPeso(float peso)  // ← MÉTODO AGREGADO
     {
-        if (rutinaPeso != null)
-            StopCoroutine(rutinaPeso);
-        
-        rutinaPeso = StartCoroutine(CambiarPesoTemporal());
+        pesoModificado += peso;
+        pesoActual = pesoBase + pesoModificado;
+        Debug.Log($"⚖️ Peso actual: {pesoActual}");
     }
     
-    IEnumerator CambiarPesoTemporal()
+    public void QuitarPeso(float peso)
     {
-        estaModificado = true;
-        pesoActual = pesoModificado;
-        ActualizarVisual();
-        
-        Debug.Log($"⚡ Power-up ACTIVADO! Peso: {pesoActual}");
-        
-        yield return new WaitForSeconds(duracionPowerUp);
-        
-        pesoActual = pesoBase;
-        estaModificado = false;
-        ActualizarVisual();
-        
-        Debug.Log($"⚡ Power-up DESACTIVADO. Peso normal: {pesoActual}");
+        pesoModificado -= peso;
+        if (pesoModificado < 0) pesoModificado = 0;
+        pesoActual = pesoBase + pesoModificado;
+        Debug.Log($"⚖️ Peso actual: {pesoActual}");
     }
     
-    void ActualizarVisual()
-    {
-        if (playerRenderer != null && materialPesado != null)
-        {
-            if (estaModificado)
-                playerRenderer.material = materialPesado;
-            else if (materialNormal != null)
-                playerRenderer.material = materialNormal;
-        }
-    }
-    
-    // Método para que otros scripts consulten el peso
     public float GetCurrentWeight()
     {
         return pesoActual;
+    }
+    
+    public void ResetPeso()
+    {
+        pesoModificado = 0;
+        pesoActual = pesoBase;
     }
 }

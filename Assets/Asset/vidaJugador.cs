@@ -7,21 +7,9 @@ public class VidaJugador : MonoBehaviour
     private float vidaActual;
     public bool estaMuerto = false;
     
-    public AudioClip sonidoDaño;
-    public AudioClip sonidoMuerte;
-    public AudioClip sonidoCuracion;
-    
-    public GameObject efectoMuerte;
-    private AudioSource audioSourceEfectos;
-    
     void Start()
     {
         vidaActual = vidaMaxima;
-        audioSourceEfectos = gameObject.AddComponent<AudioSource>();
-        audioSourceEfectos.volume = 1f;
-        audioSourceEfectos.playOnAwake = false;
-        UIManager ui = FindObjectOfType<UIManager>();
-if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
     }
     
     public void RecibirDano(float cantidad)
@@ -29,16 +17,16 @@ if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
         if (estaMuerto) return;
         
         vidaActual -= cantidad;
+        StartCoroutine(AnimacionDaño());
         
-        if (sonidoDaño != null)
-            audioSourceEfectos.PlayOneShot(sonidoDaño, 1f);
+        if (vidaActual <= 0)
+        {
+            vidaActual = 0;
+            Morir();
+        }
         
-        // Único log de vida al recibir daño
-        Debug.Log($"Vida: {vidaActual}/{vidaMaxima}");
-        
-        if (vidaActual <= 0) Morir();
-        UIManager ui = FindObjectOfType<UIManager>();
-if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
+        ActualizarUI();
+        Debug.Log($"❤️ Vida: {vidaActual}/{vidaMaxima}");
     }
     
     public void Curar(float cantidad)
@@ -48,45 +36,36 @@ if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
         vidaActual += cantidad;
         if (vidaActual > vidaMaxima) vidaActual = vidaMaxima;
         
-        if (sonidoCuracion != null)
-        {
-            audioSourceEfectos.Stop(); 
-            audioSourceEfectos.clip = sonidoCuracion;
-            audioSourceEfectos.Play();
-            
-            // Log de inicio
-            Debug.Log("🔊 Inicio de sonido de curación");
-            
-            StartCoroutine(DetenerSonidoCuracion(2f));
-        }
-        UIManager ui = FindObjectOfType<UIManager>();
-if (ui != null) ui.ActualizarVida(vidaActual, vidaMaxima);
+        ActualizarUI();
+        Debug.Log($"💚 Vida: {vidaActual}/{vidaMaxima}");
     }
-
-    IEnumerator DetenerSonidoCuracion(float tiempo)
+    
+    void ActualizarUI()
     {
-        yield return new WaitForSeconds(tiempo);
-        
-        if (audioSourceEfectos.clip == sonidoCuracion)
+        UIManager ui = FindFirstObjectByType<UIManager>();
+        if (ui != null) ui.ActualizarVida();
+    }
+    
+    IEnumerator AnimacionDaño()
+    {
+        Renderer[] renders = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in renders)
         {
-            audioSourceEfectos.Stop();
-            // Log de terminación
-            Debug.Log("🔇 Terminación de sonido de curación");
+            r.material.color = Color.red;
+        }
+        
+        yield return new WaitForSeconds(0.2f);
+        
+        foreach (Renderer r in renders)
+        {
+            r.material.color = Color.white;
         }
     }
     
     void Morir()
     {
-        if (estaMuerto) return;
         estaMuerto = true;
-        
-        if (sonidoMuerte != null)
-            AudioSource.PlayClipAtPoint(sonidoMuerte, transform.position, 1f);
-        
-        if (efectoMuerte != null)
-            Instantiate(efectoMuerte, transform.position, Quaternion.identity);
-        
-        Destroy(gameObject);
+        Debug.Log("💀 Jugador murió");
     }
     
     public float GetVidaActual() { return vidaActual; }

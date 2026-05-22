@@ -1,40 +1,48 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Paneles de UI")]
+    [Header("Paneles")]
     public GameObject panelInstrucciones;
     public GameObject panelPausa;
     
-    [Header("Textos en pantalla")]
-    public Text textoMunicion;
-    public Text textoVida;
-    public Text textoObjetivo;
-    public Text textoContadorEsqueletos;
+    [Header("Textos")]
+    public TMP_Text textoMunicion;
+    public TMP_Text textoVida;
+    public TMP_Text textoObjetivo;
+    public TMP_Text textoContadorEsqueletos;
     
-    [Header("Variables del juego")]
-    public int esqueletosParaMatar = 3;
+    [Header("Barra de Vida")]
+    public Image barraVida;
+    
+    private VidaJugador vidaJugador;
+    private PlayerDisparo playerDisparo;
     private int esqueletosMatados = 0;
-    private bool tieneLlave = false;
-    
-    [Header("Referencias")]
-    public GameObject puertaFinal;
-    public GameObject llaveObjeto;
+    public int esqueletosParaMatar = 3;
     
     void Start()
     {
-        ActualizarUI();
+        vidaJugador = FindFirstObjectByType<VidaJugador>();
+        playerDisparo = FindFirstObjectByType<PlayerDisparo>();
+        
+        ActualizarVida();
+        ActualizarMunicion();
+        
+        if (panelInstrucciones != null)
+            Invoke("OcultarInstrucciones", 5f);
+        
+        if (panelPausa != null)
+            panelPausa.SetActive(false);
+        
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
-        
-        if (puertaFinal != null)
-            puertaFinal.SetActive(false);
     }
     
     void Update()
     {
-        // Pausa con Escape
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             bool pausado = panelPausa.activeSelf;
@@ -42,66 +50,82 @@ public class UIManager : MonoBehaviour
             
             if (!pausado)
             {
+                Time.timeScale = 0f;
                 Cursor.lockState = CursorLockMode.None;
                 Cursor.visible = true;
-                Time.timeScale = 0;
             }
             else
             {
+                Time.timeScale = 1f;
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
-                Time.timeScale = 1;
             }
         }
-        
-        // Ocultar instrucciones después de 5 segundos
-        if (Time.time > 5f && panelInstrucciones.activeSelf)
-        {
+    }
+    
+    void OcultarInstrucciones()
+    {
+        if (panelInstrucciones != null)
             panelInstrucciones.SetActive(false);
-        }
+    }
+    
+    public void Reanudar()
+    {
+        panelPausa.SetActive(false);
+        Time.timeScale = 1f;
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
+    }
+    
+    public void MenuPrincipal()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MenuPrincipal");
     }
     
     public void MatarEsqueleto()
     {
         esqueletosMatados++;
-        ActualizarUI();
+        if (textoContadorEsqueletos != null)
+            textoContadorEsqueletos.text = $"💀 {esqueletosMatados}/{esqueletosParaMatar}";
         
-        if (esqueletosMatados >= esqueletosParaMatar && !tieneLlave)
+        // Si ya mató suficientes, actualizar objetivo
+        if (esqueletosMatados >= esqueletosParaMatar)
         {
-            RecibirLlave();
+            if (textoObjetivo != null)
+                textoObjetivo.text = "✅ TIENES LA LLAVE! Ve a la puerta";
         }
     }
     
-    public void RecibirLlave()
-{
-    tieneLlave = true;
-    textoObjetivo.text = "✅ TIENES LA LLAVE! Ve a la puerta";
-    
-    if (puertaFinal != null)
-        puertaFinal.SetActive(true);
-}
-
-public void AbrirPuerta()
-{
-    textoObjetivo.text = "🚪 PUERTA ABIERTA! Escapa!";
-}
-
-    
-    public void ActualizarMunicion(int actual, int total)
+    public void ActualizarMunicion()
     {
-        textoMunicion.text = $"🔫 {actual} / {total}";
+        if (playerDisparo != null && textoMunicion != null)
+            textoMunicion.text = $"🔫 {playerDisparo.balasEnCargador}/{playerDisparo.balasTotales}";
     }
     
-    public void ActualizarVida(float vida, float vidaMax)
+    public void ActualizarVida()
     {
-        textoVida.text = $"❤️ {vida} / {vidaMax}";
+        if (vidaJugador != null)
+        {
+            float vidaActual = vidaJugador.GetVidaActual();
+            float vidaMax = vidaJugador.GetVidaMaxima();
+            
+            if (textoVida != null)
+                textoVida.text = $"❤️ {(int)vidaActual}/{(int)vidaMax}";
+            
+            if (barraVida != null)
+                barraVida.fillAmount = vidaActual / vidaMax;
+        }
     }
     
-    void ActualizarUI()
+    public bool TieneLlave()
     {
-        textoContadorEsqueletos.text = $"💀 Esqueletos: {esqueletosMatados}/{esqueletosParaMatar}";
-        textoObjetivo.text = "🗡️ Mata a los esqueletos para obtener la llave";
+        return esqueletosMatados >= esqueletosParaMatar;
     }
     
-    public bool TieneLlave() { return tieneLlave; }
+    public void AbrirPuerta()
+    {
+        if (textoObjetivo != null)
+            textoObjetivo.text = "🚪 PUERTA ABIERTA! Escapa!";
+    }
 }

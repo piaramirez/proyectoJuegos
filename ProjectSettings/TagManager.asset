@@ -8,6 +8,8 @@ TagManager:
   - Plataforma
   - Enemigo
   - Bala
+  - Recogible
+  - Caja
   layers:
   - Default
   - TransparentFX

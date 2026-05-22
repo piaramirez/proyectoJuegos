@@ -52,6 +52,9 @@ void Disparar() {
             }
             Debug.Log("Sin balas");
         }
+        // Al final de Disparar() y Recargar(), agrega:
+UIManager ui = FindFirstObjectByType<UIManager>();
+if (ui != null) ui.ActualizarMunicion();
     }
 
     IEnumerator Recargar() {
@@ -67,5 +70,9 @@ void Disparar() {
         balasEnCargador += balasARecargar;
         balasTotales -= balasARecargar;
         estaRecargando = false;
+        // Al final de Disparar() y Recargar(), agrega:
+UIManager ui = FindFirstObjectByType<UIManager>();
+if (ui != null) ui.ActualizarMunicion();
     }
+    
 }
