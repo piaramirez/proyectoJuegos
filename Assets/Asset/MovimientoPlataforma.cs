@@ -11,7 +11,7 @@ public class MovimientoPlataforma : MonoBehaviour
     
     [Header("Configuración de Audio")]
     public AudioSource audioSource;
-    public AudioClip sonidoMovimiento;
+    public AudioClip sonidoMovement; // Evitamos nombres idénticos por si las moscas
     public AudioClip sonidoLlegada;
     public AudioClip sonidoPisada;
     
@@ -28,7 +28,7 @@ public class MovimientoPlataforma : MonoBehaviour
         if (audioSource == null)
             audioSource = GetComponent<AudioSource>();
         
-        if (audioSource == null && (sonidoMovimiento != null || sonidoLlegada != null))
+        if (audioSource == null && (sonidoMovement != null || sonidoLlegada != null))
             audioSource = gameObject.AddComponent<AudioSource>();
         
         if (audioSource != null)
@@ -46,11 +46,11 @@ public class MovimientoPlataforma : MonoBehaviour
         
         bool enMovimiento = Vector3.Distance(transform.position, destinoActual.position) > 0.1f;
         
-        if (enMovimiento && sonidoMovimiento != null)
+        if (enMovimiento && sonidoMovement != null)
         {
             if (!reproduciendoMovimiento)
             {
-                audioSource.clip = sonidoMovimiento;
+                audioSource.clip = sonidoMovement;
                 audioSource.loop = true;
                 audioSource.Play();
                 reproduciendoMovimiento = true;
@@ -83,11 +83,21 @@ public class MovimientoPlataforma : MonoBehaviour
         else if (indiceSiguiente == 3) destinoActual = Mov3;
     }
 
+    // 🔥 EL SEGURO ANTIMANCHAS PARA TU NUEVA PLATAFORMA:
     private void OnCollisionEnter(Collision col)
     {
         if (col.gameObject.CompareTag("Player"))
         {
+            // 1. Lo hacemos hijo para que viaje suave sin resbalar
             col.transform.SetParent(transform);
+            
+            // 2. Parche matemático inverso: Evita que el mono se aplaste si la plataforma está estirada
+            Vector3 escalaPlataforma = transform.localScale;
+            col.transform.localScale = new Vector3(
+                1f / escalaPlataforma.x,
+                1f / escalaPlataforma.y,
+                1f / escalaPlataforma.z
+            );
             
             if (sonidoPisada != null && audioSource != null)
             {
@@ -100,7 +110,11 @@ public class MovimientoPlataforma : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Player"))
         {
+            // Lo liberamos
             col.transform.SetParent(null);
+            
+            // Forzamos que recupere su tamaño real al bajarse de un salto
+            col.transform.localScale = Vector3.one;
         }
     }
 }

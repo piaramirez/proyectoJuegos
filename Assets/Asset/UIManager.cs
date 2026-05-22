@@ -39,6 +39,9 @@ public class UIManager : MonoBehaviour
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+        
+        // Objetivo inicial limpio
+        CambiarTextoObjetivo("⚔️ Elimina a los 3 esqueletos guarding la zona");
     }
     
     void Update()
@@ -83,17 +86,16 @@ public class UIManager : MonoBehaviour
         SceneManager.LoadScene("MenuPrincipal");
     }
     
+    // Al matar un esqueleto, actualiza el contador y avisa el siguiente paso
     public void MatarEsqueleto()
     {
         esqueletosMatados++;
         if (textoContadorEsqueletos != null)
             textoContadorEsqueletos.text = $"💀 {esqueletosMatados}/{esqueletosParaMatar}";
         
-        // Si ya mató suficientes, actualizar objetivo
         if (esqueletosMatados >= esqueletosParaMatar)
         {
-            if (textoObjetivo != null)
-                textoObjetivo.text = "✅ TIENES LA LLAVE! Ve a la puerta";
+            CambiarTextoObjetivo("📦 ¡Esqueletos caídos! Lleva la caja al botón rojo");
         }
     }
     
@@ -117,15 +119,14 @@ public class UIManager : MonoBehaviour
                 barraVida.fillAmount = vidaActual / vidaMax;
         }
     }
-    
-    public bool TieneLlave()
-    {
-        return esqueletosMatados >= esqueletosParaMatar;
-    }
-    
-    public void AbrirPuerta()
+
+    // 🍏 FUNCIÓN COMODÍN MATA-BUGS: Permite cambiar el texto de la pantalla de forma dinámica
+    public void CambiarTextoObjetivo(string nuevoMensaje)
     {
         if (textoObjetivo != null)
-            textoObjetivo.text = "🚪 PUERTA ABIERTA! Escapa!";
+        {
+            textoObjetivo.text = nuevoMensaje;
+            Debug.Log($"[UI] Objetivo actualizado: {nuevoMensaje}");
+        }
     }
 }

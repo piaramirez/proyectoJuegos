@@ -2528,7 +2528,6 @@ GameObject:
   - component: {fileID: 846198652}
   - component: {fileID: 846198651}
   - component: {fileID: 846198650}
-  - component: {fileID: 846198654}
   - component: {fileID: 846198655}
   m_Layer: 0
   m_Name: PuertaFinal
@@ -2630,19 +2629,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &846198654
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 846198649}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d7f11563356a6f4aa90d8e0fd10a6be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PuertaFinal
-  gameManager: {fileID: 1668785001}
 --- !u!114 &846198655
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4146,7 +4132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a40e96cffffb4864ba45a59079b32eab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Lava
-  "da\xF1oPorSegundo": 30
+  "da\xF1oPorSegundo": 10
 --- !u!1 &1564428705
 GameObject:
   m_ObjectHideFlags: 0
@@ -4271,6 +4257,7 @@ GameObject:
   - component: {fileID: 1565506868}
   - component: {fileID: 1565506867}
   - component: {fileID: 1565506866}
+  - component: {fileID: 1565506870}
   m_Layer: 0
   m_Name: Puente
   m_TagString: Untagged
@@ -4365,36 +4352,19 @@ Transform:
   m_GameObject: {fileID: 1565506865}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -32.95546, y: -0.65717006, z: -14.5}
-  m_LocalScale: {x: 5, y: 0.3, z: 3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1592140888}
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1592140886
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1592140888}
-  - component: {fileID: 1592140887}
-  m_Layer: 0
-  m_Name: ContenedorPuente
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1592140887
+--- !u!114 &1565506870
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1592140886}
+  m_GameObject: {fileID: 1565506865}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f0044b829829db84490f14c2eed28619, type: 3}
@@ -4403,22 +4373,6 @@ MonoBehaviour:
   posicionFinal: {x: 6, y: 1, z: 20}
   velocidad: 3
   tiempoEspera: 2
---- !u!4 &1592140888
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1592140886}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -32, y: -1, z: -14}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1565506869}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1641351742
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4957,7 +4911,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1809792709}
-  - component: {fileID: 1809792708}
   m_Layer: 0
   m_Name: PuenteController
   m_TagString: Untagged
@@ -4965,21 +4918,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1809792708
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1809792707}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d5f6f616f0db04449a5d107015f5225, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PuenteController
-  puente: {fileID: 1565506865}
-  botonPuente: {fileID: 0}
-  puenteActivo: 1
 --- !u!4 &1809792709
 Transform:
   m_ObjectHideFlags: 0
@@ -5404,7 +5342,7 @@ SceneRoots:
   - {fileID: 1668722481}
   - {fileID: 1809792709}
   - {fileID: 716185924}
+  - {fileID: 1565506869}
   - {fileID: 681560497}
   - {fileID: 1995541060}
   - {fileID: 1641351742}
-  - {fileID: 1592140888}
