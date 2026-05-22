@@ -43,7 +43,6 @@ public class WeightButton : MonoBehaviour
             ControlJugador jugador = other.GetComponent<ControlJugador>();
             if (jugador != null)
             {
-                // Obtener el peso actual del jugador (lo agregaremos después)
                 float pesoJugador = GetPesoJugador(jugador);
                 pesoActualEnBotón += pesoJugador;
                 VerificarActivacion();
@@ -67,7 +66,6 @@ public class WeightButton : MonoBehaviour
     
     float GetPesoJugador(ControlJugador jugador)
     {
-        // Buscar el componente WeightSystem en el jugador
         WeightSystem weightSys = jugador.GetComponent<WeightSystem>();
         if (weightSys != null)
             return weightSys.GetCurrentWeight();
@@ -92,28 +90,23 @@ public class WeightButton : MonoBehaviour
     {
         estaActivado = true;
         
-        // Activar objetos
         foreach (GameObject obj in objetosAActivar)
         {
             if (obj != null)
                 obj.SetActive(true);
         }
         
-        // Desactivar objetos
         foreach (GameObject obj in objetosADesactivar)
         {
             if (obj != null)
                 obj.SetActive(false);
         }
         
-        // Evento
         onActivado?.Invoke();
         
-        // Sonido
         if (sonidoActivacion != null)
             audioSource.PlayOneShot(sonidoActivacion, 0.8f);
         
-        // Visual
         ActualizarVisual();
         
         Debug.Log($"✅ Botón ACTIVADO (Peso: {pesoActualEnBotón}/{pesoRequerido})");
@@ -123,7 +116,6 @@ public class WeightButton : MonoBehaviour
     {
         estaActivado = false;
         
-        // Revertir objetos
         foreach (GameObject obj in objetosAActivar)
         {
             if (obj != null)
@@ -157,13 +149,15 @@ public class WeightButton : MonoBehaviour
         }
     }
     
-    // Mostrar el peso requerido en el editor
+    // BLINDAJE PARA COMPILACIÓN: Esto solo existirá dentro del editor de Unity
+#if UNITY_EDITOR
     void OnDrawGizmos()
     {
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireCube(transform.position, transform.localScale);
         
-        // Texto en el editor (opcional)
+        // El culpable original ahora está protegido aquí adentro
         UnityEditor.Handles.Label(transform.position + Vector3.up, $"Peso requerido: {pesoRequerido}");
     }
+#endif
 }

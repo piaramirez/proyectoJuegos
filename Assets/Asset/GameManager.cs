@@ -1,12 +1,14 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     [Header("Configuración de Objetos")]
-    public GameObject botonOculto; // <-- Aquí vas a arrastrar el BotonPeso en Unity
+    public GameObject botonOculto; 
     public GameObject puente;
     public GameObject panelVictoria;
+    public GameObject puertaFinal; // <-- ¡NUEVO! Arrastra aquí la Puerta Final en Unity
     
     [Header("Interfaz de Usuario")]
     public TextMeshProUGUI textoObjetivo;
@@ -15,32 +17,53 @@ public class GameManager : MonoBehaviour
     public int enemigosNecesarios = 3;
     private int enemigosMuertos = 0;
     private int pasoActual = 1;
-    
+    private bool juegoTerminado = false;
+    private bool estaEnLava = false; 
+    private bool velocidadActivada = false; 
+
     void Start()
     {
-        // Al empezar el juego obligamos a que el botón y el puente estén apagados
+        Time.timeScale = 1f;
+        
         if (botonOculto != null) botonOculto.SetActive(false);
         if (puente != null) puente.SetActive(false);
         if (panelVictoria != null) panelVictoria.SetActive(false);
         
         ActualizarObjetivo();
     }
+
+    void Update()
+    {
+        if (juegoTerminado && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+        {
+            ReiniciarNivel();
+        }
+    }
     
-    // ESTA ES LA FUNCIÓN QUE LLAMA TU ESQUELETO AL MORIR
     public void EnemigoMuerto()
     {
         enemigosMuertos++;
-        Debug.Log($"Enemigo registrado por el GM. Cuenta: {enemigosMuertos}/{enemigosNecesarios}");
         
-        // Si ya mataste los 3 esqueletos y sigues en el paso 1...
         if (enemigosMuertos >= enemigosNecesarios && pasoActual == 1)
         {
             if (botonOculto != null)
             {
-                botonOculto.SetActive(true); // 💥 ¡AQUÍ ES DONDE SE ACTIVA TU BOTÓN EN EL MAPA!
+                botonOculto.SetActive(true); 
                 pasoActual = 2;
                 ActualizarObjetivo();
-                Debug.Log("¡El botón ha aparecido en el suelo!");
+            }
+
+            // 💥 ¡PARCHE DE LA PUERTA! En cuanto mueren los 3, cambia a color verde
+            if (puertaFinal != null)
+            {
+                Renderer rend = puertaFinal.GetComponent<Renderer>();
+                if (rend == null) rend = puertaFinal.GetComponentInChildren<Renderer>();
+                
+                if (rend != null)
+                {
+                    rend.material.color = Color.green;
+                    Debug.Log("<color=green>🚪 PUERTA FINAL: ¡Cambió a color verde! Lista para recibir al jugador.</color>");
+                }
             }
         }
     }
@@ -49,9 +72,13 @@ public class GameManager : MonoBehaviour
     {
         if (pasoActual == 2)
         {
-            if (puente != null) puente.SetActive(true); // 🌉 ¡AQUÍ APARECE EL PUENTE!
+            if (puente != null) puente.SetActive(true); 
             pasoActual = 3;
-            ActualizarObjetivo();
+            
+            if (textoObjetivo != null)
+            {
+                textoObjetivo.text = "OBJETIVO 3/3: ¡Sube a la plataforma y avanza!";
+            }
         }
     }
     
@@ -67,17 +94,74 @@ public class GameManager : MonoBehaviour
             Cursor.visible = true;
         }
     }
-    
+
+    public void MostrarLetreroLava(bool enLava)
+    {
+        if (juegoTerminado) return; 
+        
+        estaEnLava = enLava;
+        
+        if (textoObjetivo != null)
+        {
+            if (estaEnLava)
+            {
+                textoObjetivo.text = "PELIGRO, TE QUEMAS"; 
+            }
+            else
+            {
+                ActualizarObjetivo(); 
+            }
+        }
+    }
+
+    public void MostrarLetreroVelocidad(bool activa)
+    {
+        if (juegoTerminado || estaEnLava) return;
+
+        velocidadActivada = activa;
+
+        if (textoObjetivo != null)
+        {
+            if (velocidadActivada)
+            {
+                textoObjetivo.text = "VELOCIDAD ACTIVADA";
+            }
+            else
+            {
+                ActualizarObjetivo();
+            }
+        }
+    }
+
+    public void TerminarPorDerrota()
+    {
+        if (juegoTerminado) return;
+        juegoTerminado = true;
+
+        Time.timeScale = 0f; 
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
+
+        if (textoObjetivo != null)
+        {
+            textoObjetivo.text = "<color=red>¡HAS MUERTO!</color> Presiona [Enter] para volver a empezar";
+        }
+    }
+
+    public void ReiniciarNivel()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     void ActualizarObjetivo()
     {
-        if (textoObjetivo == null) return;
+        if (textoObjetivo == null || juegoTerminado || estaEnLava || velocidadActivada) return;
         
         switch (pasoActual)
         {
-            // Quitamos los emojis para evitar los cuadros blancos [□] de TMPro
             case 1: textoObjetivo.text = "OBJETIVO 1/3: Mata a los 3 esqueletos"; break;
             case 2: textoObjetivo.text = "OBJETIVO 2/3: Coloca la caja en el boton rojo"; break;
-            case 3: textoObjetivo.text = "OBJETIVO 3/3: Cruza el puente y toca la puerta"; break;
+            case 3: textoObjetivo.text = "OBJETIVO 3/3: ¡Sube a la plataforma y avanza!"; break; 
             case 4: textoObjetivo.text = "FELICIDADES! NIVEL COMPLETADO"; break;
         }
     }

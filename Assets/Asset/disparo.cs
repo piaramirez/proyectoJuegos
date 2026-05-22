@@ -4,7 +4,7 @@ using UnityEngine;
 public class PlayerDisparo : MonoBehaviour
 {
     public int balasEnCargador = 15;
-    public int balasTotales = 60;
+    public int balasTotales = 100;
     public int capacidadCargador = 15;
     public float tiempoEntreDisparos = 0.2f;
     public GameObject prefabBala;

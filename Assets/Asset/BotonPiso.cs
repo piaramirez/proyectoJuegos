@@ -2,31 +2,33 @@ using UnityEngine;
 
 public class BotonPiso : MonoBehaviour
 {
-    private GameManager gameManager;
-    private bool yaSePiso = false;
-
-    void Start()
-    {
-        // Busca automáticamente al GameManager en la escena al iniciar
-        gameManager = Object.FindFirstObjectByType<GameManager>();
-    }
+    private bool presionado = false;
 
     void OnTriggerEnter(Collider other)
     {
-        // Evita que se active más de una vez si lo pisas de nuevo
-        if (yaSePiso) return;
-
-        // Detecta si lo pisa el jugador (Player) o la caja (Caja)
-        if (other.CompareTag("Player") || other.CompareTag("Caja"))
+        // Si entra la caja y no se ha presionado antes
+        if (!presionado && (other.CompareTag("Caja") || other.gameObject.name.ToLower().Contains("caja")))
         {
-            if (gameManager != null)
+            presionado = true;
+            
+            // 1. Busca el puente/plataforma y lo activa
+            PuenteMovil puente = Object.FindFirstObjectByType<PuenteMovil>();
+            if (puente != null)
             {
-                yaSePiso = true;
-                gameManager.ActivarPuente();
-                
-                // Opcional: bajar un poco el botón visualmente para dar efecto de que se presionó
-                transform.position -= new Vector3(0, 0.05f, 0); 
+                puente.IniciarMovimiento();
             }
+
+            // 2. PARCHE DE BLOQUEO TOTAL: Destruir la caja que cayó encima
+            Destroy(other.gameObject);
+            Debug.Log("<color=cyan>📦 CAJA: Desaparecida con éxito.</color>");
+
+            // 3. DESAPARECER EL BOTÓN VERDE:
+            // Apagamos su MeshRenderer y su Collider para que se vuelva invisible e intangible.
+            // Así el jugador ya no puede chocar con él, ni verlo flotando, ni agarrarlo jamás.
+            if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
+            if (GetComponent<MeshRenderer>() != null) GetComponent<MeshRenderer>().enabled = false;
+
+            Debug.Log("<color=green>🟢 BOTÓN: Desactivado y ocultado para evitar que lo agarren.</color>");
         }
     }
 }

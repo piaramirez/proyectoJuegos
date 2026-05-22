@@ -22,7 +22,7 @@ public class VidaJugador : MonoBehaviour
         if (vidaActual <= 0)
         {
             vidaActual = 0;
-            Morir();
+            Morir(); // <-- Aquí truena el Game Over
         }
         
         ActualizarUI();
@@ -51,14 +51,14 @@ public class VidaJugador : MonoBehaviour
         Renderer[] renders = GetComponentsInChildren<Renderer>();
         foreach (Renderer r in renders)
         {
-            r.material.color = Color.red;
+            if (r != null) r.material.color = Color.red;
         }
         
         yield return new WaitForSeconds(0.2f);
         
         foreach (Renderer r in renders)
         {
-            r.material.color = Color.white;
+            if (r != null) r.material.color = Color.white;
         }
     }
     
@@ -66,6 +66,13 @@ public class VidaJugador : MonoBehaviour
     {
         estaMuerto = true;
         Debug.Log("💀 Jugador murió");
+
+        // PARCHE DE MUERTE: Le avisa de inmediato al GameManager que perdimos
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null)
+        {
+            gm.TerminarPorDerrota();
+        }
     }
     
     public float GetVidaActual() { return vidaActual; }

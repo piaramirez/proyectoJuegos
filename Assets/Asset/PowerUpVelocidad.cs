@@ -3,13 +3,12 @@ using System.Collections;
 
 public class PowerUpVelocidad : MonoBehaviour
 {
-    public float duracion = 5f;
+    public float duration = 5f;
     public float multiplicadorVelocidad = 2f;
     
     void Start()
     {
         StartCoroutine(Rotar());
-        Debug.Log("⚡ Power-up de velocidad creado");
     }
     
     IEnumerator Rotar()
@@ -25,24 +24,42 @@ public class PowerUpVelocidad : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            ControlJugador jugador = other.GetComponent<ControlJugador>();
-            if (jugador != null)
+            // 💥 PARCHE DINÁMICO: Buscamos cualquier script que tenga la variable 'velocidad' en tu jugador
+            // para saltarnos el error de si la clase empieza con mayúscula o minúscula.
+            Component scriptMovimiento = other.GetComponent("movimiento") ?? other.GetComponent("ControlJugador");
+            
+            if (scriptMovimiento != null)
             {
-                StartCoroutine(AumentarVelocidad(jugador));
-                GetComponent<MeshRenderer>().enabled = false;
-                GetComponent<Collider>().enabled = false;
-                Destroy(gameObject, 1f);
-                Debug.Log("⚡ Velocidad aumentada!");
+                GameManager gm = FindFirstObjectByType<GameManager>();
+                if (gm != null) gm.MostrarLetreroVelocidad(true);
+
+                StartCoroutine(AumentarVelocidadDinamica(scriptMovimiento));
+                OcultarObjeto();
             }
         }
     }
-    
-    IEnumerator AumentarVelocidad(ControlJugador jugador)
+
+    void OcultarObjeto()
     {
-        float velocidadOriginal = jugador.velocidad;
-        jugador.velocidad *= multiplicadorVelocidad;
-        yield return new WaitForSeconds(duracion);
-        jugador.velocidad = velocidadOriginal;
-        Debug.Log("⚡ Velocidad normal");
+        if (GetComponent<MeshRenderer>() != null) GetComponent<MeshRenderer>().enabled = false;
+        if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
+        Destroy(gameObject, duration + 0.5f); 
+    }
+    
+    IEnumerator AumentarVelocidadDinamica(Component script)
+    {
+        // Usamos Reflection básico de C# para leer la variable 'velocidad' sin importar el nombre de la clase
+        var field = script.GetType().GetField("velocidad");
+        if (field == null) yield break;
+
+        float velocidadOriginal = (float)field.GetValue(script);
+        field.SetValue(script, velocidadOriginal * multiplicadorVelocidad);
+        
+        yield return new WaitForSeconds(duration);
+        
+        field.SetValue(script, velocidadOriginal);
+
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null) gm.MostrarLetreroVelocidad(false);
     }
 }

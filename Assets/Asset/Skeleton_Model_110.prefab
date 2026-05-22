@@ -139,9 +139,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.5
-  m_Height: 1
+  m_Height: 2
   m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Center: {x: 2, y: 2, z: 2}
 --- !u!54 &4703010975780186232
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -278,9 +278,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434e3c3b5c8085c40830ab1aaaff02e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemigoPerseguidor
-  vidaEnemigo: 50
-  "da\xF1oAlJugador": 15
-  tiempoEntreAtaques: 1.5
+  vidaEnemigo: 45
+  "da\xF1oAlJugador": 10
+  tiempoEntreAtaques: 1.1
   sonidoPasos: {fileID: 0}
   "sonidoRecibirDa\xF1o": {fileID: 0}
   sonidoMorir: {fileID: 0}

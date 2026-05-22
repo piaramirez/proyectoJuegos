@@ -2,38 +2,34 @@ using UnityEngine;
 
 public class CamaraSigue : MonoBehaviour
 {
-    [Header("Objetivo")]
+    [Header("Objetivo a Seguir")]
     public Transform jugador;
 
-    [Header("Configuración de Vista Isométrica")]
-    // Estos valores determinan qué tan alejada y elevada está la cámara
-    public Vector3 offset = new Vector3(0, 15f, -15f); // Aumentado para más distancia
+    [Header("Configuración de Vista Aérea 3D")]
+    // Distancia respecto al jugador (Y: altura, Z: hacia atrás)
+    public Vector3 offset = new Vector3(0f, 12f, -12f);
     
-    // Ángulo de inclinación hacia abajo (X) y rotación (Y)
-    public Vector3 angle = new Vector3(45f, 0, 0); // 45 grados hacia abajo para perspectiva 3D
+    // Inclinación fija de 45 grados hacia abajo mirando al escenario
+    public float inclinacionX = 45f;
 
     [Header("Suavizado")]
-    public float suavizado = 5f;
-    
-    void Start()
-    {
-        // Aplicar la rotación isométrica fija al inicio
-        transform.rotation = Quaternion.Euler(angle);
-    }
+    public float velocidadSeguimiento = 5f;
 
     void LateUpdate()
     {
+        // Si no tienes asignado al jugador, lo busca por su Tag automáticamente
         if (jugador == null)
         {
             GameObject player = GameObject.FindWithTag("Player");
             if (player != null) jugador = player.transform;
             return;
         }
-        
-        // Calculamos la posición deseada basándonos en el offset
+
+        // 1. Forzar la posición calculando el offset exacto desde el jugador
         Vector3 posicionDeseada = jugador.position + offset;
-        
-        // Seguimiento suave de posición
-        transform.position = Vector3.Lerp(transform.position, posicionDeseada, suavizado * Time.deltaTime);
+        transform.position = Vector3.Lerp(transform.position, posicionDeseada, velocidadSeguimiento * Time.deltaTime);
+
+        // 2. Forzar la rotación para que NUNCA se voltee de cabeza ni mire de frente
+        transform.rotation = Quaternion.Euler(inclinacionX, 0f, 0f);
     }
 }
