@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public GameObject botonOculto; 
     public GameObject puente;
     public GameObject panelVictoria;
-    public GameObject puertaFinal; // <-- ¡NUEVO! Arrastra aquí la Puerta Final en Unity
+    public GameObject puertaFinal; // <-- Arrastra aquí la Puerta Final en Unity
     
     [Header("Interfaz de Usuario")]
     public TextMeshProUGUI textoObjetivo;
@@ -40,9 +40,13 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    // 🍏 UNIFICADO: Esta es la función que llama el esqueleto al parpadear en rojo
     public void EnemigoMuerto()
     {
         enemigosMuertos++;
+        
+        // 🛠️ PARCHE DEL CONTADOR VISUAL: Actualiza directo el texto de la esquina
+        ActualizarObjetivo();
         
         if (enemigosMuertos >= enemigosNecesarios && pasoActual == 1)
         {
@@ -68,11 +72,22 @@ public class GameManager : MonoBehaviour
         }
     }
     
+    // Esta función la llama el script del Botón cuando dejas caer la caja
     public void ActivarPuente()
     {
         if (pasoActual == 2)
         {
+            // 🍏 SI DECIDISTE QUITAR LA LAVA EN LUGAR DE MOVER EL PUENTE:
+            GameObject objetoLava = GameObject.Find("Lava");
+            if (objetoLava != null)
+            {
+                objetoLava.SetActive(false); // Quita la lava directamente
+                Debug.Log("🍏 ¡Lava eliminada por el botón!");
+            }
+
+            // Si prefieres mantener el puente físico:
             if (puente != null) puente.SetActive(true); 
+            
             pasoActual = 3;
             
             if (textoObjetivo != null)
@@ -159,7 +174,7 @@ public class GameManager : MonoBehaviour
         
         switch (pasoActual)
         {
-            case 1: textoObjetivo.text = "OBJETIVO 1/3: Mata a los 3 esqueletos"; break;
+            case 1: textoObjetivo.text = "OBJETIVO 1/3: Mata a los 3 esqueletos (" + enemigosMuertos + "/" + enemigosNecesarios + ")"; break;
             case 2: textoObjetivo.text = "OBJETIVO 2/3: Coloca la caja en el boton rojo"; break;
             case 3: textoObjetivo.text = "OBJETIVO 3/3: ¡Sube a la plataforma y avanza!"; break; 
             case 4: textoObjetivo.text = "FELICIDADES! NIVEL COMPLETADO"; break;

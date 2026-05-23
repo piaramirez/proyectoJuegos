@@ -26,7 +26,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: be3776e9bd6e31341b3490a035f6ea50, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: be3776e9bd6e31341b3490a035f6ea50, type: 3}
       propertyPath: m_LocalPosition.z
@@ -141,7 +141,7 @@ CapsuleCollider:
   m_Radius: 0.5
   m_Height: 2
   m_Direction: 1
-  m_Center: {x: 2, y: 2, z: 2}
+  m_Center: {x: 0, y: 1, z: 0}
 --- !u!54 &4703010975780186232
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -278,10 +278,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434e3c3b5c8085c40830ab1aaaff02e2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EnemigoPerseguidor
-  vidaEnemigo: 45
-  "da\xF1oAlJugador": 10
+  "da\xF1o": 10
+  velocidad: 3.5
+  distanciaAtaque: 2.5
   tiempoEntreAtaques: 1.1
-  sonidoPasos: {fileID: 0}
-  "sonidoRecibirDa\xF1o": {fileID: 0}
-  sonidoMorir: {fileID: 0}
-  sonidoAtacar: {fileID: 0}
+  fuerzaRetroceso: 5

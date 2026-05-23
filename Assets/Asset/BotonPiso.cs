@@ -2,33 +2,40 @@ using UnityEngine;
 
 public class BotonPiso : MonoBehaviour
 {
-    private bool presionado = false;
+    private bool activado = false;
+    private Renderer rendererBotón;
+
+    void Start()
+    {
+        rendererBotón = GetComponent<Renderer>();
+    }
 
     void OnTriggerEnter(Collider other)
     {
-        // Si entra la caja y no se ha presionado antes
-        if (!presionado && (other.CompareTag("Caja") || other.gameObject.name.ToLower().Contains("caja")))
+        // Se activa si lo pisa el jugador o si dejas caer la Caja
+        if (other.CompareTag("Player") || other.CompareTag("Caja") || other.name.Contains("Caja") || other.name.Contains("Hero"))
         {
-            presionado = true;
-            
-            // 1. Busca el puente/plataforma y lo activa
-            PuenteMovil puente = Object.FindFirstObjectByType<PuenteMovil>();
-            if (puente != null)
-            {
-                puente.IniciarMovimiento();
-            }
+            ActivarBoton();
+        }
+    }
 
-            // 2. PARCHE DE BLOQUEO TOTAL: Destruir la caja que cayó encima
-            Destroy(other.gameObject);
-            Debug.Log("<color=cyan>📦 CAJA: Desaparecida con éxito.</color>");
+    void ActivarBoton()
+    {
+        if (activado) return;
+        activado = true;
 
-            // 3. DESAPARECER EL BOTÓN VERDE:
-            // Apagamos su MeshRenderer y su Collider para que se vuelva invisible e intangible.
-            // Así el jugador ya no puede chocar con él, ni verlo flotando, ni agarrarlo jamás.
-            if (GetComponent<Collider>() != null) GetComponent<Collider>().enabled = false;
-            if (GetComponent<MeshRenderer>() != null) GetComponent<MeshRenderer>().enabled = false;
+        if (rendererBotón != null) rendererBotón.material.color = Color.green; // Cambia a verde el botón
 
-            Debug.Log("<color=green>🟢 BOTÓN: Desactivado y ocultado para evitar que lo agarren.</color>");
+        // 🍏 EL PARCHE MAESTRO: Llama a ActivarPuente que es el método real de tu GameManager de 130 líneas
+        GameManager gm = FindFirstObjectByType<GameManager>();
+        if (gm != null)
+        {
+            gm.ActivarPuente();
+            Debug.Log("🍏 ¡BOTÓN ACTIVADO! Mandando señal al GameManager para el siguiente paso del puzzle.");
+        }
+        else
+        {
+            Debug.LogError("❌ No se encontró el GameManager en la escena.");
         }
     }
 }

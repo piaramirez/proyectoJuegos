@@ -14,15 +14,14 @@ public class PlayerDisparo : MonoBehaviour
     public AudioClip sonidoSinBalas;
     public AudioClip sonidoRecargar;
     
-    private AudioSource audioSource; // Usaremos un AudioSource fijo
+    private AudioSource audioSource; 
     private float siguienteTiempoDisparo;
     private bool estaRecargando = false;
 
     void Start() {
         balasEnCargador = capacidadCargador;
-        // Configuramos el AudioSource para que sea 2D y potente
         audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
-        audioSource.spatialBlend = 0f; // 0 = 2D TOTAL (Suena en toda la pantalla)
+        audioSource.spatialBlend = 0f; 
         audioSource.playOnAwake = false;
     }
 
@@ -34,35 +33,33 @@ public class PlayerDisparo : MonoBehaviour
             StartCoroutine(Recargar());
     }
 
-void Disparar() {
+    void Disparar() {
         if (balasEnCargador > 0) {
             balasEnCargador--;
             siguienteTiempoDisparo = Time.time + tiempoEntreDisparos;
             
             if (sonidoDisparo != null) {
-                // Usamos PlayOneShot para que el disparo suene AL MISMO TIEMPO que el salto o caminar
                 audioSource.PlayOneShot(sonidoDisparo, 1f); 
             }
             
-            Instantiate(prefabBala, puntoDisparo.position, puntoDisparo.rotation);
-            Debug.Log($"Balas: {balasEnCargador}/{capacidadCargador}");
+            if (prefabBala != null && puntoDisparo != null)
+            {
+                // 🔥 ALTURA CONGELADA: Nace siempre a 1.1 metros de altura del suelo real
+                Vector3 posicionForzada = new Vector3(puntoDisparo.position.x, 1.1f, puntoDisparo.position.z);
+                Instantiate(prefabBala, posicionForzada, puntoDisparo.rotation);
+            }
         } else {
             if (sonidoSinBalas != null) {
                 audioSource.PlayOneShot(sonidoSinBalas, 1f);
             }
-            Debug.Log("Sin balas");
         }
-        // Al final de Disparar() y Recargar(), agrega:
-UIManager ui = FindFirstObjectByType<UIManager>();
-if (ui != null) ui.ActualizarMunicion();
+
+        UIManager ui = FindFirstObjectByType<UIManager>();
+        if (ui != null) ui.ActualizarMunicion();
     }
 
     IEnumerator Recargar() {
         estaRecargando = true;
-        Debug.Log("Recargando");
-        
-        if (sonidoRecargar) audioSource.PlayOneShot(sonidoRecargar, 1f);
-        
         yield return new WaitForSeconds(1.5f);
         
         int balasNecesarias = capacidadCargador - balasEnCargador;
@@ -70,9 +67,8 @@ if (ui != null) ui.ActualizarMunicion();
         balasEnCargador += balasARecargar;
         balasTotales -= balasARecargar;
         estaRecargando = false;
-        // Al final de Disparar() y Recargar(), agrega:
-UIManager ui = FindFirstObjectByType<UIManager>();
-if (ui != null) ui.ActualizarMunicion();
+        
+        UIManager ui = FindFirstObjectByType<UIManager>();
+        if (ui != null) ui.ActualizarMunicion();
     }
-    
 }

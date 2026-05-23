@@ -4,84 +4,75 @@ public class Bala : MonoBehaviour
 {
     public float velocidad = 25f;
     public float tiempoVida = 3f;
-    private Transform objetivo;
 
     void Start()
     {
-        // 🔥 EL PARCHE DEFINITIVO: Buscar al jugador y ordenarle a Unity que ignore sus colisiones
+        Debug.Log($"🚀 [Bala] Proyectil creado en Y fija: {transform.position.y}. Dirección: {transform.forward}");
+
         GameObject jugador = GameObject.FindWithTag("Player");
         if (jugador != null)
         {
-            Collider colJugador = jugador.GetComponent<Collider>();
             Collider miCol = GetComponent<Collider>();
-            
-            // Si el jugador o la bala tienen colliders en los hijos, también los ignoramos
-            if (colJugador != null && miCol != null)
-            {
-                Physics.IgnoreCollision(miCol, colJugador, true);
-            }
-            
-            // Por si acaso tu Hero_Ice tiene los colliders en el cuerpo hijo (Hero_Ice_Body)
             Collider[] collidersHijos = jugador.GetComponentsInChildren<Collider>();
             foreach (Collider c in collidersHijos)
             {
                 if (miCol != null && c != null) Physics.IgnoreCollision(miCol, c, true);
             }
         }
-
-        GameObject enemigo = GameObject.FindWithTag("Enemigo");
-        if (enemigo != null) objetivo = enemigo.transform;
-        
         Destroy(gameObject, tiempoVida);
     }
 
     void Update()
     {
-        if (objetivo != null)
-        {
-            Vector3 centroEnemigo = objetivo.position + Vector3.up * 1f; // Apunta al pecho
-            Vector3 direccion = (centroEnemigo - transform.position).normalized;
-            transform.position += direccion * velocidad * Time.deltaTime;
-            transform.forward = direccion;
-
-            if (Vector3.Distance(transform.position, centroEnemigo) < 1.8f)
-            {
-                ImpactarEnemigo(objetivo.gameObject);
-                return;
-            }
-        }
-        else
-        {
-            transform.position += transform.forward * velocidad * Time.deltaTime;
-        }
+        transform.position += transform.forward * velocidad * Time.deltaTime;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player") || other.gameObject.name.Contains("Hero")) return;
-        
-        if (other.gameObject.name.ToLower().Contains("piso") || 
-            other.gameObject.name.ToLower().Contains("suelo") || 
-            other.gameObject.name.ToLower().Contains("floor")) return;
-
-        if (other.CompareTag("Enemigo") || other.gameObject.name.Contains("Skeleton"))
-        {
-            ImpactarEnemigo(other.gameObject);
-        }
-        else if (!other.isTrigger)
-        {
-            Destroy(gameObject);
-        }
+        EvaluarImpacto(other.gameObject);
     }
 
-    void ImpactarEnemigo(GameObject enemigo)
+    void OnCollisionEnter(Collision collision)
     {
-        EnemigoPerseguidor enemigoScript = enemigo.GetComponent<EnemigoPerseguidor>();
-        if (enemigoScript != null)
+        EvaluarImpacto(collision.gameObject);
+    }
+
+    void EvaluarImpacto(GameObject objetoTocado)
+    {
+        if (objetoTocado.CompareTag("Player") || objetoTocado.name.Contains("Hero")) return;
+        
+        // 🔥 PARCHE DE OBSTÁCULOS: Si toca la lava, cajas o powerups, los atraviesa sin destruirse
+        if (objetoTocado.name.ToLower().Contains("lava") || 
+            objetoTocado.name.ToLower().Contains("caja") || 
+            objetoTocado.name.ToLower().Contains("powerup"))
         {
-            float dañoCalculado = enemigoScript.vidaEnemigo / 3f;
-            enemigoScript.RecibirDaño(dañoCalculado + 1f); 
+            // Retornamos sin destruir la bala para que los atraviese
+            return; 
         }
-        Destroy(gameObject); 
+
+        // Si choca contra paredes o el piso firme del mapa, ahí sí se destruye
+        if (objetoTocado.name.ToLower().Contains("piso") || objetoTocado.name.ToLower().Contains("suelo") || 
+            objetoTocado.name.ToLower().Contains("wall") || objetoTocado.name.ToLower().Contains("pared"))
+        {
+            Debug.Log($"🧱 [Bala] Choque con estructura firme: '{objetoTocado.name}'. Destruyendo proyectil.");
+            Destroy(gameObject);
+            return;
+        }
+
+        // Detección del enemigo en cualquier parte de su modelo
+        EnemigoPerseguidor enemigoScript = objetoTocado.GetComponent<EnemigoPerseguidor>();
+        if (enemigoScript == null) enemigoScript = objetoTocado.GetComponentInParent<EnemigoPerseguidor>();
+        if (enemigoScript == null) enemigoScript = objetoTocado.GetComponentInChildren<EnemigoPerseguidor>();
+
+        if (objetoTocado.CompareTag("Enemigo") || objetoTocado.name.Contains("Skeleton") || enemigoScript != null)
+        {
+            if (enemigoScript != null)
+            {
+                Debug.Log($"🎯 [Bala] ¡GOLPE DIRECTO A: '{objetoTocado.name}'! Aplicando daño y retroceso.");
+                enemigoScript.RecibirImpactoBala(transform.forward); 
+            }
+            
+            Destroy(gameObject);
+        }
     }
 }

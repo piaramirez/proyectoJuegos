@@ -1,32 +1,52 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class VidaJugador : MonoBehaviour
 {
+    [Header("Configuración de Vida")]
     public float vidaMaxima = 100f;
-    private float vidaActual;
+    [SerializeField] private float vidaActual;
     public bool estaMuerto = false;
+
+    private Dictionary<Renderer, Color> coloresOriginales = new Dictionary<Renderer, Color>();
+    private Renderer[] misRenderers;
     
     void Start()
     {
         vidaActual = vidaMaxima;
+        
+        misRenderers = GetComponentsInChildren<Renderer>();
+        foreach (Renderer r in misRenderers)
+        {
+            if (r != null && r.material.HasProperty("_Color"))
+            {
+                coloresOriginales[r] = r.material.color;
+            }
+        }
+
+        ActualizarUI();
     }
     
     public void RecibirDano(float cantidad)
     {
+        Debug.Log($"\U0001FA78 [VidaJugador] RecibirDano invocado. Cantidad entrante: {cantidad}. Vida actual previa: {vidaActual}");
+        
         if (estaMuerto) return;
         
         vidaActual -= cantidad;
+        
+        StopCoroutine(AnimacionDaño());
         StartCoroutine(AnimacionDaño());
         
         if (vidaActual <= 0)
         {
             vidaActual = 0;
-            Morir(); // <-- Aquí truena el Game Over
+            Morir();
         }
         
         ActualizarUI();
-        Debug.Log($"❤️ Vida: {vidaActual}/{vidaMaxima}");
+        Debug.Log($"❤️ Vida Jugador Actualizada: {vidaActual}/{vidaMaxima}");
     }
     
     public void Curar(float cantidad)
@@ -37,7 +57,7 @@ public class VidaJugador : MonoBehaviour
         if (vidaActual > vidaMaxima) vidaActual = vidaMaxima;
         
         ActualizarUI();
-        Debug.Log($"💚 Vida: {vidaActual}/{vidaMaxima}");
+        Debug.Log($"💚 Vida Jugador: {vidaActual}/{vidaMaxima}");
     }
     
     void ActualizarUI()
@@ -48,31 +68,29 @@ public class VidaJugador : MonoBehaviour
     
     IEnumerator AnimacionDaño()
     {
-        Renderer[] renders = GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in renders)
+        foreach (Renderer r in misRenderers)
         {
             if (r != null) r.material.color = Color.red;
         }
         
         yield return new WaitForSeconds(0.2f);
         
-        foreach (Renderer r in renders)
+        foreach (Renderer r in misRenderers)
         {
-            if (r != null) r.material.color = Color.white;
+            if (r != null && coloresOriginales.ContainsKey(r))
+            {
+                r.material.color = coloresOriginales[r];
+            }
         }
     }
     
     void Morir()
     {
         estaMuerto = true;
-        Debug.Log("💀 Jugador murió");
+        Debug.Log("💀 El personaje principal ha muerto.");
 
-        // PARCHE DE MUERTE: Le avisa de inmediato al GameManager que perdimos
         GameManager gm = FindFirstObjectByType<GameManager>();
-        if (gm != null)
-        {
-            gm.TerminarPorDerrota();
-        }
+        if (gm != null) gm.TerminarPorDerrota();
     }
     
     public float GetVidaActual() { return vidaActual; }
