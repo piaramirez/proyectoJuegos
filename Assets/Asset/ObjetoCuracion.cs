@@ -23,6 +23,7 @@ public class ObjetoCuracion : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             VidaJugador vidaJugador = other.GetComponent<VidaJugador>();
+            if (vidaJugador == null) vidaJugador = other.GetComponentInChildren<VidaJugador>();
             
             if (vidaJugador != null)
             {
@@ -31,27 +32,23 @@ public class ObjetoCuracion : MonoBehaviour
                     vidaJugador.Curar(cantidadCuracion);
                     usado = true;
                     
+                    // 🔥 LLAMADA AL LETRERO VERDE DEL GAMEMANAGER
+                    GameManager gm = (GameManager)FindObjectOfType(typeof(GameManager));
+                    if (gm != null) gm.MostrarLetreroCuracion();
+                    
                     if (sonidoAlCurar != null)
                     {
                         audioSource.PlayOneShot(sonidoAlCurar);
-                        Debug.Log("🔊 Sonido de curación - durará 2 segundos");
                     }
                     
                     if (efectoAlCurar != null)
                         Instantiate(efectoAlCurar, transform.position, Quaternion.identity);
                     
-                    // Ocultar el objeto visualmente
                     MeshRenderer mr = GetComponent<MeshRenderer>();
                     if (mr != null) mr.enabled = false;
                     
                     GetComponent<Collider>().enabled = false;
-                    
-                    // ESPERAR 2 SEGUNDOS ANTES DE DESTRUIR
-                    Destroy(gameObject, 2f);
-                }
-                else
-                {
-                    Debug.Log("Vida al máximo, no se puede curar");
+                    Destroy(gameObject, 1.8f);
                 }
             }
         }
